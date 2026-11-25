@@ -55,6 +55,20 @@ export function validateLine(line) {
   if (/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(line)) {
     throw new Error('Line must not contain control characters.');
   }
+  // Reject internal runs of two or more spaces and any tab: a clean
+  // single line has single spaces between words only.
+  if (/[ \t]{2,}|\t/.test(line)) {
+    throw new Error('Line must use single spaces only (no tabs or double spaces).');
+  }
+  // The entry must read as one finished sentence from the cron job
+  // itself: it must end with a full stop, not trail off mid-thought.
+  if (!line.endsWith('.')) {
+    throw new Error('Line must end with a full stop.');
+  }
+  // No links: the letter is the entry, not a pointer elsewhere.
+  if (/https?:\/\/|www\./i.test(line)) {
+    throw new Error('Line must not contain a URL.');
+  }
 }
 
 validateLine(LETTER);
